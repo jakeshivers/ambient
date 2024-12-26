@@ -18,8 +18,17 @@ def read_config():
     return config
 
 
+def generate_random_coordinates():
+    """
+    Generates random latitude and longitude within North America.
+    """
+    lat = random.uniform(24.396308, 49.384358)  # Latitudes from southern US to Canada
+    lon = random.uniform(-125.0, -66.93457)  # Longitudes from west to east US
+    return round(lat, 6), round(lon, 6)
+
+
 def generate_iot_data():
-    """Generate synthetic IoT sensor data."""
+    """Generate enhanced IoT sensor data."""
     sensors = [f"sensor_{i}" for i in range(1, 500)]  # Simulate 500 sensors
     sensor_types = [
         "motion",
@@ -30,39 +39,74 @@ def generate_iot_data():
         "humidity",
         "light",
         "excessive_airconditioning",
+        "door_movement",
+        "lock_status",
+        "co2_sensor",
     ]
+
+    lat, lon = generate_random_coordinates()
+    manufacturers = [
+        "GE",
+        "Wiliot",
+        "Samsung",
+        "Philips",
+        "Benji",
+        "Bastille",
+        "Honeywell",
+    ]  # Example device models
+    models = [
+        "Model S",
+        "Sleep Easy",
+        "Night Watch",
+        "v2",
+        "Model P",
+    ]  # Example manufacturers
 
     data = {
         "sensor_id": random.choice(sensors),
         "timestamp": time.time(),
         "sensor_type": random.choice(sensor_types),
+        "latitude": lat,
+        "longitude": lon,
+        "city": "Unknown",  # Placeholder for city info (can be enhanced with APIs)
+        "state": "Unknown",  # Placeholder for state info
+        "device_model": random.choice(models),
+        "manufacturer": random.choice(manufacturers),
+        "firmware_version": f"v{random.randint(1, 5)}.{random.randint(0, 9)}",
     }
 
-    if data["sensor_type"] == "motion":
-        data["value"] = random.choice([0, 1])
-        data["duration"] = random.uniform(0, 5) if data["value"] else 0
-    elif data["sensor_type"] == "temperature":
-        data["value"] = round(random.uniform(15, 35), 2)
-        if random.random() < 0.05:  # 5% chance of faulty temperature
-            data["value"] = random.choice([-10, 60])  # Extreme outliers
-    elif data["sensor_type"] == "air_quality":
-        data["value"] = round(random.uniform(0, 500), 2)
-    elif data["sensor_type"] == "doorbell":
-        data["value"] = random.randint(0, 10)
-    elif data["sensor_type"] == "water_leak":
-        data["value"] = random.choice([0, 1])
-        data["severity"] = random.uniform(0, 1) if data["value"] else 0
-    elif data["sensor_type"] == "humidity":
-        data["value"] = round(random.uniform(20, 80), 2)
-        if random.random() < 0.02:  # 2% chance of faulty humidity
-            data["value"] = random.choice([0, 120])  # Unrealistic values
-    elif data["sensor_type"] == "light":
-        data["value"] = random.randint(0, 1000)
-    elif data["sensor_type"] == "excessive_airconditioning":
-        if random.randint(0, 100) >= 95:  # 5% chance of False
-            data["value"] = False
-        else:
-            data["value"] = True
+    # Sensor-specific value generation
+    value_generators = {
+        "motion": lambda: {
+            "value": random.choice([0, 1]),
+            "duration": random.uniform(0, 5) if random.choice([0, 1]) else 0,
+        },
+        "door_movement": lambda: {"value": 1 if random.random() < 0.1 else 0},
+        "lock_status": lambda: {"value": 1 if random.random() < 0.05 else 0},
+        "temperature": lambda: {"value": round(random.uniform(15, 35), 2)},
+        "air_quality": lambda: {"value": round(random.uniform(0, 500), 2)},
+        "doorbell": lambda: {"value": random.randint(0, 10)},
+        "water_leak": lambda: {
+            "value": random.choice([0, 1]),
+            "severity": random.uniform(0, 1) if random.choice([0, 1]) else 0,
+        },
+        "humidity": lambda: {"value": round(random.uniform(20, 80), 2)},
+        "light": lambda: {"value": random.randint(0, 1000)},
+        "excessive_airconditioning": lambda: {
+            "value": True if random.choice([True, False]) else False,
+            "energy_usage": (
+                round(random.uniform(750, 1000), 2)
+                if random.choice([True, False])
+                else 0
+            ),
+            "duration": random.uniform(18, 24) if random.choice([True, False]) else 0,
+        },
+        "CO2_sensor": lambda: {"value": round(random.uniform(300, 1000), 2)},
+    }
+
+    # Default to an empty dictionary if sensor_type isn't explicitly handled
+    sensor_specific_data = value_generators.get(data["sensor_type"], lambda: {})()
+    data.update(sensor_specific_data)
 
     return data
 
