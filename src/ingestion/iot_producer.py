@@ -22,8 +22,30 @@ def generate_random_coordinates():
     """
     Generates random latitude and longitude within North America.
     """
-    lat = random.uniform(24.396308, 49.384358)  # Latitudes from southern US to Canada
-    lon = random.uniform(-125.0, -66.93457)  # Longitudes from west to east US
+    # Define city ranges
+    cities = {
+        "San Francisco, CA": {
+            "lat_range": (37.3, 37.8),
+            "lon_range": (-122.5, -122.32),
+        },
+        "Miami, FL": {"lat_range": (25.7, 25.8), "lon_range": (-80.3, -80.1)},
+        "Denver, CO": {"lat_range": (39.6, 39.9), "lon_range": (-105.1, -104.8)},
+        "Salt Lake City, UT": {
+            "lat_range": (40.6, 40.8),
+            "lon_range": (-112.0, -111.7),
+        },
+        "New York, NY": {"lat_range": (40.7, 40.8), "lon_range": (-74.0, -73.9)},
+    }
+
+    # Randomly pick a city
+    city = random.choice(list(cities.keys()))
+    lat_range = cities[city]["lat_range"]
+    lon_range = cities[city]["lon_range"]
+
+    # Generate random lat/lon within the selected city's range
+    lat = random.uniform(lat_range[0], lat_range[1])
+    lon = random.uniform(lon_range[0], lon_range[1])
+
     return round(lat, 6), round(lon, 6)
 
 
@@ -101,7 +123,7 @@ def generate_iot_data():
             ),
             "duration": random.uniform(18, 24) if random.choice([True, False]) else 0,
         },
-        "CO2_sensor": lambda: {"value": round(random.uniform(300, 1000), 2)},
+        "co2_sensor": lambda: {"value": round(random.uniform(300, 2000), 2)},
     }
 
     # Default to an empty dictionary if sensor_type isn't explicitly handled

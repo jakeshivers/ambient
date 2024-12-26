@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: alerts
+    description: "Aggregates alerts based on specific sensor thresholds."
+    tests:
+      - not_null:
+          column_name: sensor_type
+      - not_null:
+          column_name: value
+      - not_null:
+          column_name: severity

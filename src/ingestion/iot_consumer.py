@@ -143,7 +143,7 @@ def consume_and_process(topic, config, table_name, s3_bucket=None, s3_folder=Non
     consumer.subscribe([topic])
 
     processed_data = []  # Buffer for batch processing
-    batch_size = 2000  # Number of records per batch
+    batch_size = 200  # Number of records per batch
 
     try:
         print(f"Starting consumer for topic '{topic}'...")

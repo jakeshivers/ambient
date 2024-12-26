@@ -1,0 +1,13 @@
+iot_data_project:
+  outputs:
+    dev:
+      account: xwb98928
+      database: ambient_db
+      password: 1111Tucker
+      role: accountadmin
+      schema: ""
+      threads: 1
+      type: snowflake
+      user: JAKEAMBIENT
+      warehouse: compute_wh
+  target: dev

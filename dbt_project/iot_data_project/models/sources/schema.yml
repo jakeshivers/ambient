@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw tables from the IoT data pipeline."
+    tables:
+      - name: iot_sensor_data
+        description: "Raw sensor data collected from IoT devices."
+      - name: tbl_postal_code_mapping
+        description: "Mapping of latitude and longitude to postal codes."
