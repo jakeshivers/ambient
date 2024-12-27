@@ -19,7 +19,7 @@ This project is a comprehensive IoT data processing pipeline designed for real-t
 
 - **Data Enrichment**:
   - Enhances IoT data with geographic information (latitude, longitude, city, state).
-  - Integrates external APIs for additional context, such as weather conditions and energy usage.
+  - Integrates external APIs for additional context, such as weather conditions and energy usage. Weather was added to Snowflake via Snowflake Marketplace.
 
 - **Data Transformation with dbt**:
   - Builds modular, scalable models using dbt, including incremental models for efficient processing.
@@ -40,9 +40,10 @@ This project is a comprehensive IoT data processing pipeline designed for real-t
 - **Storage**: AWS S3, Parquet
 - **Data Warehouse**: Snowflake
 - **Data Transformation**: dbt
+- **QA**: dbt Expectations
 - **Orchestration**: Apache Airflow
 - **Visualization**: Preset (Apache Superset)
-- **APIs**: Integration with third-party APIs for enrichment (e.g., weather data).
+- **APIs**: Integration with third-party APIs for enrichment (e.g., capturing postal code from lat/lon).
 
 ## **Use Cases**
 - **Sensor Health Monitoring**:
@@ -105,5 +106,11 @@ This project is a comprehensive IoT data processing pipeline designed for real-t
      ```
 
 4. **Explore Dashboards**:
-   - Access Superset (Preset) to visualize the data.
+   - Access Superset (Preset) to visualize the data. 
 
+## **Screenshots**
+* ## Airflow ![Airflow](images/airflow.png)
+* ## Kafka![alt text](images/confluent.png)
+* ## dbt![alt text](images/dbt.png)
+* ## Preset(dashboards)![alt text](images/preset.png)
+* ## S3![alt text](images/s3.png)
