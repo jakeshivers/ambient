@@ -1,0 +1,15 @@
+version: 2
+
+models:
+  - name: stg_iot_sensor_data
+    tests:
+     - validate_temperature_value
+    columns:
+      - name: sensor_id
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null
+    columns:
+      - name: sensor_type
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ["temperature","humidity","co2_sensor","excessive_airconditioning","lock_status","water_leak","door_movement"]
