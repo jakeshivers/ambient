@@ -8,6 +8,7 @@ import boto3
 import snowflake.connector
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -25,12 +26,18 @@ def read_config():
     return config
 
 
-def save_to_parquet(data_list, filepath):
+def save_to_parquet(data_list, parquet_file, base_path="../../data/raw"):
     """
-    Saves processed IoT data to a Parquet file.
+    Saves processed IoT data to a Parquet file with a dynamic name.
     """
+    # Ensure the directory exists
+    os.makedirs(base_path, exist_ok=True)
+    filepath = os.path.join(base_path, parquet_file)
+
+    # Save the data to a Parquet file
     table = pa.Table.from_pylist(data_list)
     pq.write_table(table, filepath)
+    print(f"Saved data to {filepath}")
 
 
 def upload_to_s3(filepath, bucket_name, object_name):
@@ -60,10 +67,15 @@ def insert_into_snowflake(data_list, table_name):
         )
         cursor = conn.cursor()
 
-        # Prepare insert statement
+        # Updated query to include LATITUDE and LONGITUDE
         insert_query = f"""
-        INSERT INTO {table_name} (SENSOR_ID, SENSOR_TYPE, VALUE, TIMESTAMP)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO {table_name} (
+            SENSOR_ID, SENSOR_TYPE, VALUE, TIMESTAMP, 
+            LATITUDE, LONGITUDE, CITY, STATE, DEVICE_MODEL,
+            MANUFACTURER, FIRMWARE_VERSION, ENERGY_USAGE,
+            DURATION, SEVERITY
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
 
         # Transform data list into tuples for Snowflake insertion
@@ -72,7 +84,17 @@ def insert_into_snowflake(data_list, table_name):
                 record["sensor_id"],
                 record["sensor_type"],
                 record["value"],
-                datetime.utcfromtimestamp(record["timestamp"]),
+                datetime.fromtimestamp(record["timestamp"]),
+                record.get("latitude"),
+                record.get("longitude"),
+                record.get("city"),
+                record.get("state"),
+                record.get("device_model"),
+                record.get("manufacturer"),
+                record.get("firmware_version"),
+                record.get("energy_usage"),
+                record.get("duration"),
+                record.get("severity"),
             )
             for record in data_list
         ]
@@ -97,11 +119,22 @@ def normalize_data(record):
         "sensor_id": record["sensor_id"],
         "sensor_type": record["sensor_type"],
         "value": (
-            float(record["value"])
-            if isinstance(record["value"], (int, bool))
-            else record["value"]
+            float(record.get("value"))
+            if isinstance(record.get("value"), (int, bool))
+            else record.get("value")
         ),
         "timestamp": record["timestamp"],
+        "latitude": record.get("latitude"),
+        "longitude": record.get("longitude"),
+        "city": record.get("city", "Unknown"),
+        "state": record.get("state", "Unknown"),
+        "device_model": record.get("device_model", "Unknown"),
+        "manufacturer": record.get("manufacturer", "Unknown"),
+        "firmware_version": record.get("firmware_version", "v1.0"),
+        "energy_usage": record.get("energy_usage"),
+        "weather_conditions": record.get("weather_conditions", "Unknown"),
+        "duration": record.get("duration"),
+        "severity": record.get("severity"),
     }
 
 
@@ -110,13 +143,13 @@ def consume_and_process(topic, config, table_name, s3_bucket=None, s3_folder=Non
     Consumes messages from Kafka, saves locally, uploads to S3, and sends to Snowflake in batches.
     """
     config["group.id"] = "iot_consumer_group"
-    config["auto.offset.reset"] = "earliest"
+    config["auto.offset.reset"] = "latest"
 
     consumer = Consumer(config)
     consumer.subscribe([topic])
 
     processed_data = []  # Buffer for batch processing
-    batch_size = 10  # Number of records per batch
+    batch_size = 30  # Number of records per batch
 
     try:
         print(f"Starting consumer for topic '{topic}'...")
@@ -139,9 +172,10 @@ def consume_and_process(topic, config, table_name, s3_bucket=None, s3_folder=Non
                         save_to_parquet(processed_data, parquet_file)
 
                         s3_key = f"{s3_folder}/{parquet_file}"
-                        upload_to_s3(parquet_file, s3_bucket, s3_key)
+                        # upload_to_s3(parquet_file, s3_bucket, s3_key)
 
                     # Insert into Snowflake
+                    # print(processed_data)
                     insert_into_snowflake(processed_data, table_name)
 
                     # Clear the buffer
@@ -163,7 +197,7 @@ def main():
     config = read_config()
     topic = "iot_data"
 
-    table_name = "iot_data"
+    table_name = "iot_sensor_data"
 
     # Optional S3 Configuration (if needed)
     s3_bucket = "ambient-iot-data-bucket"
