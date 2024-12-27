@@ -84,7 +84,7 @@ This project is a comprehensive IoT data processing pipeline designed for real-t
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/your-repo/iot-data-pipeline.git
+   git clone https://github.com/jakeshivers/ambient.git
    ```
 
 2. **Set Up the Environment**:
