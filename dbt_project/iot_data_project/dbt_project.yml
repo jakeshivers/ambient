@@ -23,6 +23,9 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
 
 
+vars:
+  'dbt_date:time_zone': 'America/Los_Angeles'
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 
