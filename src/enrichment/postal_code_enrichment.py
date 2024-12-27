@@ -1,11 +1,3 @@
-# https://radar.com/dashboard/maps/api-explorer/geocoding?project=676cb9aaad2192071df692c1&live=false
-# curl "https://api.radar.io/v1/geocode/reverse?coordinates=30.792029%2C+-115.891996&layers=postalCode" \
-#  -H "Authorization: prj_test_pk_f7a87c401fed08ac0e7470a8bea45fc4ba4e519c"
-
-
-30.792029, -115.891996
-
-
 import os
 from dotenv import load_dotenv
 import requests
@@ -94,7 +86,7 @@ if results:
     and pc.postal_code is not null
     
     """
-    cursor.executemany(update_query)
+    cursor.execute(update_query)
     conn.commit()
     cursor.close()
 

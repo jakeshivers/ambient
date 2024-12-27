@@ -26,12 +26,18 @@ def read_config():
     return config
 
 
-def save_to_parquet(data_list, filepath="../../data/raw"):
+def save_to_parquet(data_list, parquet_file, base_path="../../data/raw"):
     """
-    Saves processed IoT data to a Parquet file.
+    Saves processed IoT data to a Parquet file with a dynamic name.
     """
+    # Ensure the directory exists
+    os.makedirs(base_path, exist_ok=True)
+    filepath = os.path.join(base_path, parquet_file)
+
+    # Save the data to a Parquet file
     table = pa.Table.from_pylist(data_list)
     pq.write_table(table, filepath)
+    print(f"Saved data to {filepath}")
 
 
 def upload_to_s3(filepath, bucket_name, object_name):
@@ -143,7 +149,7 @@ def consume_and_process(topic, config, table_name, s3_bucket=None, s3_folder=Non
     consumer.subscribe([topic])
 
     processed_data = []  # Buffer for batch processing
-    batch_size = 200  # Number of records per batch
+    batch_size = 30  # Number of records per batch
 
     try:
         print(f"Starting consumer for topic '{topic}'...")
