@@ -24,4 +24,7 @@ dependencies = [
     "snowflake>=0.8.0",
     "dbt-snowflake>=1.9.0",
     "apache-airflow-providers-slack>=8.6.2",
+    "pinecone>=5.4.2",
+    "pinecone-client>=4.1.2",
+    "pinecone-plugin-assistant>=0.4.3",
 ]
